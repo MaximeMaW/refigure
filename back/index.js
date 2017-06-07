@@ -4,6 +4,9 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
 const bodyParser = require('body-parser');
+const params = require('./parameters');
+
+params.load();
 
 const config = require('js.shared').config;
 // initialize config from package.json

@@ -125,6 +125,15 @@ var _gConst = {
             return this[_code];
         }
         return 'An error occurred';
+    },
+
+    AWS: {
+        PARAMS: {
+            _JWT: 'jwtKey',
+            FB_SECRET: 'fbClientSecret',
+            CALLBACK_EMAIL: 'callbackEmail'
+        },
+        REGION: 'us-east-1'
     }
 };
 
