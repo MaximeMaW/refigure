@@ -12,15 +12,21 @@
 
     require('gulp-load-tasks')();
 
-    gulp.task('build', [
-        'bower',
-        'htm',
-        'img',
-        'js',
-        'css',
-        'index',
-        'extension'
-    ]);
+    gulp.task('build', function (done) {
+        runSequence(
+            'aws',
+            [
+                'bower',
+                'htm',
+                'img',
+                'js',
+                'css',
+                'index',
+                'extension'
+            ],
+            done
+        );
+    });
 
     gulp.task('deploy', function (done) {
         runSequence(

@@ -4,10 +4,12 @@ const gulp = require('gulp');
 const mainBowerFiles = require('gulp-main-bower-files');
 const gulpFilter = require('gulp-filter');
 const concat = require('gulp-concat');
+const params = require('../back/parameters');
 
 const config = require('./../gulp.conf');
 
 module.exports = function () {
+    console.log('attempt to see here AWS params', params.store);
     const jsFilter = gulpFilter(['**/*.js'], {
         restore: true
     });

@@ -9,7 +9,10 @@ let _store = {};
 exports.load = load;
 exports.store = _store;
 
-function load() {
+function load(cb) {
+    if (!cb) {
+        cb = () => {};
+    }
     let awsCfg = config.get('aws');
     if (awsCfg.profile) {
         let credentials = new AWS.SharedIniFileCredentials({
@@ -31,7 +34,6 @@ function load() {
     };
     Object.keys(constants.AWS.PARAMS).forEach((key) => {
         request.Names.push(constants.AWS.PARAMS[key]);
-        //_store[constants.AWS.PARAMS[key]] = config.get(constants.AWS.PARAMS[key]);
     });
 
     ssm.getParameters(request, (err, data) => {
@@ -39,9 +41,14 @@ function load() {
             console.log('AWS parameters storage fail', err);
         } else {
             data.Parameters.forEach((param) => {
-                _store[param.Name] = param.Value;
+                let awsParam = config.get('aws.' + param.Name);
+                if (awsParam !== undefined) {
+                    _store[param.Name] = awsParam;
+                } else {
+                    _store[param.Name] = param.Value;
+                }
             });
-            console.log('argv', _store);
         }
+        cb();
     });
 }
