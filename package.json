@@ -70,6 +70,9 @@
         "doParse": {
             "refigureSite": false,
             "notInManifest": false
+        },
+        "aws": {
+            "region": "us-east-1"
         }
     }
 }

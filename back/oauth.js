@@ -7,6 +7,7 @@ const db = require('./db');
 const users = require('./users');
 const rfUtils = require('./rf-utils');
 const email = require('./email');
+const params = require('./parameters');
 
 const GoogleAuth = require('google-auth-library');
 const graph = require('fbgraph');
@@ -73,7 +74,6 @@ function Google(req, res) {
 }
 
 function FB(req, res) {
-    let CLIENT_SECRET = config.get('oauth.facebook.clientSecret');
     let fields = ['first_name', 'last_name', 'email'];
 
     if (!req.params.token) {
@@ -85,7 +85,7 @@ function FB(req, res) {
         );
     }
     graph.setAccessToken(req.params.token);
-    graph.setAppSecret(CLIENT_SECRET);
+    graph.setAppSecret(params.store.fbClientSecret);
     graph.get('/me', {fields:  fields.join(',')}, (err, resp) => {
         if (err) {
             return rfUtils.error(

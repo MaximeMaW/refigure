@@ -10,8 +10,19 @@ exports.load = load;
 exports.store = _store;
 
 function load() {
+    let awsCfg = config.get('aws');
+    if (awsCfg.profile) {
+        let credentials = new AWS.SharedIniFileCredentials({
+            profile: awsCfg.profile
+        });
+
+        AWS.config.update({
+            credentials: credentials
+        });
+    }
+
     AWS.config.update({
-        region: constants.AWS.REGION
+        region: awsCfg.region
     });
     let ssm = new AWS.SSM();
     let request = {
@@ -20,7 +31,7 @@ function load() {
     };
     Object.keys(constants.AWS.PARAMS).forEach((key) => {
         request.Names.push(constants.AWS.PARAMS[key]);
-        _store[constants.AWS.PARAMS[key]] = config.get(constants.AWS.PARAMS[key]);
+        //_store[constants.AWS.PARAMS[key]] = config.get(constants.AWS.PARAMS[key]);
     });
 
     ssm.getParameters(request, (err, data) => {

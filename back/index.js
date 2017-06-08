@@ -6,12 +6,11 @@ const app = express();
 const bodyParser = require('body-parser');
 const params = require('./parameters');
 
-params.load();
-
 const config = require('js.shared').config;
 // initialize config from package.json
 const p = require('../package.json');
 config.init(p.locals);
+params.load();
 
 const routes = require('./routes');
 const auth = require('./auth');

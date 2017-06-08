@@ -132,8 +132,7 @@ var _gConst = {
             _JWT: 'jwtKey',
             FB_SECRET: 'fbClientSecret',
             CALLBACK_EMAIL: 'callbackEmail'
-        },
-        REGION: 'us-east-1'
+        }
     }
 };
 
