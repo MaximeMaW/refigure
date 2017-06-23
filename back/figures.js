@@ -86,26 +86,7 @@ function checkFiguresV2(req, res) {
         );
     }
 
-    // dedup input figures and normalize its URL/DOI
-    let dedupedFigures = [];
-    for (let figure of req.body.figures) {
-        if (rfUtils.checkStringNotEmpty(figure.DOIFigure)) {
-            figure.DOIFigure = normaliseDOIFigure(figure.DOIFigure);
-        }
-        if (rfUtils.checkStringNotEmpty(figure.URL)) {
-            figure.KeyURL = normaliseURL(figure.URL);
-        }
-        let found = false;
-        for (let exFig of dedupedFigures) {
-            if (areFiguresTheSame(exFig, figure)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            dedupedFigures.push(figure);
-        }
-    }
+    let dedupedFigures = deduplicate(req.body.figures);
 
     let urls = [];
     let dois = [];
@@ -139,12 +120,24 @@ function checkFiguresV2(req, res) {
 
     if (whereSubQuery.length) {
         q = `SELECT DISTINCT * FROM Figure WHERE ` + whereSubQuery.join(` OR `);
-        db.pool.query({sql: q}, params, (err, results) => {
-            console.log('results', results);
-            //DEDUP HERE!!!
+        db.pool.query({sql: q}, params, (err, figures) => {
+            if (err) {
+                return rfUtils.error(res, 500, constants.ERROR_SQL, constants.ERROR_MSG_SQL);
+            }
+            let metapublicationsIds = {};
+            figures.forEach((fig) => {
+                metapublicationsIds[fig.MetapublicationID] = true;
+            });
+
+            let result = {
+                data: {
+                    figures: deduplicate(figures),
+                    metapublications: Object.keys(metapublicationsIds)
+                }
+            };
             res
                 .status(httpStatus.OK)
-                .send(results);
+                .send(result);
         });
     } else {
         return rfUtils.error(
@@ -154,14 +147,29 @@ function checkFiguresV2(req, res) {
             'No list of figures to check provided'
         );
     }
-    /*let foundFigures = [];
-    let foundMetapubications = {};
-    let result = {
-        data: {
-            figures: [],
-            metapublications: []
+
+    function deduplicate(figures) {
+        let dedupedFigures = [];
+        for (let figure of figures) {
+            if (rfUtils.checkStringNotEmpty(figure.DOIFigure)) {
+                figure.DOIFigure = normaliseDOIFigure(figure.DOIFigure);
+            }
+            if (rfUtils.checkStringNotEmpty(figure.URL)) {
+                figure.KeyURL = normaliseURL(figure.URL);
+            }
+            let found = false;
+            for (let exFig of dedupedFigures) {
+                if (areFiguresTheSame(exFig, figure)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                dedupedFigures.push(figure);
+            }
         }
-    };*/
+        return dedupedFigures;
+    }
 }
 
 /**
